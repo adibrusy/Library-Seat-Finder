@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTP Library | Study Space Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --utp-green: #00A19C; 
+            --utp-navy: #002D3A;
+            --utp-gold: #FFB81C;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --bg: #f0f3f5;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg);
+            color: var(--utp-navy);
+        }
+
+        /* --- NAVIGATION --- */
+        .navbar {
+            background: white;
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        /* --- NAVIGATION AREA --- */
+        .nav-logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 5px; 
+        }
+
+        .nav-logo img { 
+             height: 80px; 
+             width: auto; 
+             object-fit: contain;
+}
+
+        .nav-logo span { 
+            font-weight: 800; 
+            font-size: 1.5rem; 
+            border-left: 3px solid #ddd; 
+            padding-left: 15px; 
+            color: var(--utp-navy);
+            letter-spacing: 1px; 
+}
+        
+        .status-badge {
+            background: #e0f2f1;
+            color: var(--utp-green);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .notice-bar {
+            background: var(--utp-gold);
+            color: var(--utp-navy);
+            padding: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- PAGES --- */
+        .page { display: none; padding: 20px 5%; max-width: 1100px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- HERO & TILES --- */
+        .welcome-hero {
+            background: linear-gradient(rgba(0,45,58,0.7), rgba(0,45,58,0.7)), url('IRC.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 24px;
+            padding: 80px 40px;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .welcome-hero h1 { font-size: 2.5rem; margin: 0; font-weight: 700; }
+        .welcome-hero p { font-size: 1.1rem; opacity: 0.9; margin: 15px auto 30px auto; max-width: 600px; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .tile {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            border-bottom: 4px solid transparent;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            transition: 0.3s;
+        }
+        .tile:hover { transform: translateY(-5px); border-bottom-color: var(--utp-green); }
+        .tile h4 { margin: 0 0 10px 0; color: #7f8c8d; font-size: 0.8rem; text-transform: uppercase; }
+        .tile .value { font-size: 2.2rem; font-weight: 700; color: var(--utp-navy); }
+        .tile .sub-value { font-size: 0.9rem; color: var(--success); font-weight: 600; }
+
+        /* --- MAP ELEMENTS --- */
+        .map-header-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .img-placeholder {
+            background: #ddd;
+            height: 150px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .img-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .dot { width: 14px; height: 14px; border-radius: 3px; }
+
+        .cluster-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 25px;
+            padding: 25px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 900px) { .cluster-container { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .cluster-container { grid-template-columns: 1fr; } }
+
+        .table-set {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #eee;
+        }
+
+        .node {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.9rem;
+        }
+        .available { background: var(--success); }
+        .occupied { background: var(--danger); }
+
+        .btn-main { background: var(--utp-green); color: white; border: none; padding: 16px 45px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 1.1rem; }
+        .btn-text { background: transparent; color: var(--utp-green); border: none; font-weight: 700; cursor: pointer; }
+
+        .floor-card {
+            background: white;
+            margin-bottom: 10px;
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #eee;
+        }
+        .floor-card:hover { transform: translateX(5px); border-color: var(--utp-green); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-logo">
+            <img src="UTP-Logo.png" alt="UTP Logo">
+            <span>IRC PORTAL</span>
+        </div>
+        <div class="status-badge" id="liveStatus">● Connecting...</div>
+    </nav>
+
+    <div class="notice-bar">
+        NOTICE: Level 3 Smart Seat System is now in LIVE BETA testing.
+    </div>
+
+    <div id="homePage" class="page active">
+        <div class="welcome-hero">
+            <h1>UTP Library Seat Finder</h1>
+            <p>Real-time occupancy tracking for IRC study spaces. Navigate smarter, study better.</p>
+            <button class="btn-main" onclick="nav('levelPage')">Find a Seat</button>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="tile" onclick="nav('levelPage')">
+                <h4>Total Free Seats</h4>
+                <div class="value" id="totalFree">0</div>
+                <div class="sub-value">Across all floors</div>
+            </div>
+            <div class="tile" onclick="nav('levelPage')">
+                <h4>Current Density</h4>
+                <div class="value">Optimal</div>
+                <div class="sub-value" style="color: var(--utp-green);">Ready for Study</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="levelPage" class="page">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="margin:0;">Select Floor</h2>
+            <button class="btn-text" onclick="nav('homePage')">← Back</button>
+        </div>
+        <div id="floorContainer"></div>
+    </div>
+
+    <div id="layoutPage" class="page">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 id="viewTitle">Floor Map</h2>
+            <button class="btn-text" onclick="nav('levelPage')">Close</button>
+        </div>
+        
+        <div class="map-header-images">
+            <div class="img-placeholder"><img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400"></div>
+            <div class="img-placeholder"><img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400"></div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="dot" style="background:var(--success);"></div> Available</div>
+            <div class="legend-item"><div class="dot" style="background:var(--danger);"></div> Occupied</div>
+        </div>
+
+        <div id="seatMapContainer"></div>
+        <p id="syncTime" style="font-size:0.7rem; text-align:center; color:#999; margin-top:20px;"></p>
+    </div>
+
+    <script>
+        const ESP_IP = "172.20.10.2"; 
+
+        const building = {
+            "Ground Floor": generateStatic(32),
+            "First Floor": generateStatic(32),
+            "Second Floor": generateStatic(32),
+            "Third Floor (IoT Zone)": Array(32).fill("available") 
+        };
+
+        function generateStatic(n) {
+            return Array.from({length: n}, () => Math.random() > 0.7 ? "occupied" : "available");
+        }
+
+        async function pullData() {
+            try {
+                const res = await fetch(`http://${ESP_IP}/seats?v=${Date.now()}`);
+                const data = await res.json();
+                building["Third Floor (IoT Zone)"][0] = data.seat1;
+                building["Third Floor (IoT Zone)"][1] = data.seat2;
+                document.getElementById('liveStatus').innerText = "● System Connected";
+                document.getElementById('liveStatus').style.background = "#e0f2f1";
+                document.getElementById('liveStatus').style.color = "var(--utp-green)";
+            } catch (e) {
+                document.getElementById('liveStatus').innerText = "● System Offline";
+                document.getElementById('liveStatus').style.background = "#ffebee";
+                document.getElementById('liveStatus').style.color = "var(--danger)";
+            }
+            document.getElementById('syncTime').innerText = "Last Sync: " + new Date().toLocaleTimeString();
+            refreshScreen();
+        }
+
+        function refreshScreen() {
+            let total = 0;
+            Object.values(building).forEach(f => total += f.filter(s => s === "available").length);
+            document.getElementById('totalFree').innerText = total;
+
+            if (document.getElementById('levelPage').classList.contains('active')) drawFloors();
+            if (document.getElementById('layoutPage').classList.contains('active')) drawLayout();
+        }
+
+        function drawFloors() {
+            const list = document.getElementById('floorContainer');
+            list.innerHTML = Object.keys(building).map(f => `
+                <div class="floor-card" onclick="openMap('${f}')">
+                    <span style="font-weight:700;">${f}</span>
+                    <span style="color:var(--utp-green); font-weight:700;">${building[f].filter(s => s === "available").length} Free</span>
+                </div>
+            `).join('');
+        }
+
+        function openMap(name) {
+            document.getElementById('viewTitle').innerText = name;
+            nav('layoutPage');
+        }
+
+        function drawLayout() {
+            const name = document.getElementById('viewTitle').innerText;
+            const container = document.getElementById('seatMapContainer');
+            container.innerHTML = "";
+
+            const grid = document.createElement('div');
+            grid.className = "cluster-container";
+            
+            for(let c = 0; c < 8; c++) {
+                const tableSet = document.createElement('div');
+                tableSet.className = "table-set";
+                for(let s = 0; s < 4; s++) {
+                    const seatIdx = (c * 4) + s;
+                    const status = building[name][seatIdx];
+                    tableSet.innerHTML += `<div class="node ${status}">${seatIdx + 1}</div>`;
+                }
+                grid.appendChild(tableSet);
+            }
+            container.appendChild(grid);
+        }
+
+        function nav(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            refreshScreen();
+        }
+
+        setInterval(pullData, 2000);
+        pullData();
+    </script>
+</body>
+</html>
