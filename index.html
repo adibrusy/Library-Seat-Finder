@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTP Library | Study Space Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --utp-green: #00A19C; 
+            --utp-navy: #002D3A;
+            --utp-gold: #FFB81C;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --bg: #f0f3f5;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg);
+            color: var(--utp-navy);
+        }
+
+        /* --- NAVIGATION --- */
+        .navbar {
+            background: white;
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-logo { display: flex; align-items: center; gap: 5px; }
+        .nav-logo img { height: 60px; width: auto; object-fit: contain; }
+        .nav-logo span { 
+            font-weight: 800; 
+            font-size: 1.3rem; 
+            border-left: 3px solid #ddd; 
+            padding-left: 15px; 
+            color: var(--utp-navy);
+            letter-spacing: 1px; 
+        }
+        
+        .status-badge {
+            background: #e0f2f1;
+            color: var(--utp-green);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .notice-bar {
+            background: var(--utp-gold);
+            color: var(--utp-navy);
+            padding: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        /* --- PAGES --- */
+        .page { display: none; padding: 20px 5%; max-width: 1100px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- HERO --- */
+        .welcome-hero {
+            background: linear-gradient(rgba(0,45,58,0.7), rgba(0,45,58,0.7)), url('IRC.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 24px;
+            padding: 80px 40px;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* --- MAP ELEMENTS --- */
+        .map-header-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .img-placeholder {
+            background: #eee;
+            height: 220px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+        .img-placeholder img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: opacity 0.4s ease;
+        }
+
+        /* --- LEGEND --- */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .dot { width: 14px; height: 14px; border-radius: 3px; }
+
+        /* --- SEAT GRID --- */
+        .cluster-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 24px;
+        }
+        .table-set {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 12px;
+            border: 2px solid #eee;
+        }
+        .node {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.8rem;
+        }
+        /* Using 'body' and '!important' overrides almost any browser conflict */
+body .node.available { 
+    background-color: #27ae60 !important; 
+}
+body .node.occupied { 
+    background-color: #c0392b !important; 
+}
+
+        /* --- BUTTONS & CARDS --- */
+        .floor-card {
+            background: white;
+            margin-bottom: 10px;
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            border: 1px solid #eee;
+            transition: 0.2s;
+        }
+        .floor-card:hover { transform: translateX(5px); border-color: var(--utp-green); }
+        .btn-main { background: var(--utp-green); color: white; border: none; padding: 16px 45px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        .btn-text { background: transparent; color: var(--utp-green); border: none; font-weight: 700; cursor: pointer; }
+
+        @media (max-width: 768px) {
+            .map-header-images { grid-template-columns: 1fr; }
+            .cluster-container { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-logo">
+            <img src="UTP-Logo.png" alt="UTP Logo">
+            <span>IRC SEAT FINDER SYSTEM</span>
+        </div>
+        <div class="status-badge" id="liveStatus">● Connecting...</div>
+    </nav>
+
+    <div class="notice-bar">
+        NOTICE: Level 3 Smart Seat System is now in LIVE BETA testing.
+    </div>
+
+    <div id="homePage" class="page active">
+        <div class="welcome-hero">
+            <h1>Information Resource Center</h1>
+            <p>Real-time occupancy tracking for IRC study spaces.</p>
+            <button class="btn-main" onclick="nav('levelPage')">Find a Seat</button>
+        </div>
+        <div style="background:white; padding:25px; border-radius:20px; text-align:center;">
+            <h4 style="margin:0; color:#7f8c8d; font-size:1rem; text-transform:uppercase;">Total Free Seats</h4>
+            <div id="totalFree" style="font-size:3rem; font-weight:800; color:var(--utp-navy);">0</div>
+        </div>
+    </div>
+
+    <div id="levelPage" class="page">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="margin:0;">Select Floor</h2>
+            <button class="btn-text" onclick="nav('homePage')">← Back</button>
+        </div>
+        <div id="floorContainer"></div>
+    </div>
+
+    <div id="layoutPage" class="page">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 id="viewTitle">Floor Map</h2>
+            <button class="btn-text" onclick="nav('levelPage')">Close</button>
+        </div>
+        
+        <div class="map-header-images">
+            <div class="img-placeholder">
+                <img id="floorImgMain" src="" alt="Main View">
+            </div>
+            <div class="img-placeholder">
+                <img id="floorImgAlt" src="" alt="Detail View">
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="dot" style="background:var(--success);"></div> Available</div>
+            <div class="legend-item"><div class="dot" style="background:var(--danger);"></div> Occupied</div>
+        </div>
+
+        <div id="seatMapContainer"></div>
+        <p id="syncTime" style="font-size:0.7rem; text-align:center; color:#999; margin-top:20px;"></p>
+    </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js";
+
+// 1. FIREBASE CONFIGURATION
+const firebaseConfig = {
+    databaseURL: "https://utp-library-seat-finder-default-rtdb.asia-southeast1.firebasedatabase.app/", 
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// 2. GLOBAL DATA STRUCTURE
+window.building = {
+    "Ground Floor": { 
+        seats: [
+            "occupied",  "occupied",  "available", "available", 
+            "available", "occupied",  "available", "available",
+            "occupied",  "available", "occupied",  "occupied",
+            "available", "available", "available", "available",
+            "occupied",  "occupied",  "available", "available",
+            "available", "available", "available", "occupied",
+            "occupied",  "available", "available", "available",
+            "available", "available", "occupied",  "occupied"
+        ], 
+        image: "G1.jpg", 
+        imageAlt: "G2.jpg" 
+    },
+    "First Floor": { 
+        seats: [
+            "available", "available", "occupied",  "occupied",
+            "occupied",  "available", "available", "available",
+            "available", "available", "available", "available",
+            "occupied",  "occupied",  "occupied",  "occupied",
+            "available", "available", "available", "available",
+            "available", "occupied",  "available", "available",
+            "occupied",  "available", "occupied",  "available",
+            "available", "available", "available", "available"
+        ], 
+        image: "11.jpg", 
+        imageAlt: "12.jpg" 
+    },
+    "Second Floor": { 
+        seats: [
+            "occupied",  "available", "available", "occupied",
+            "available", "available", "available", "available",
+            "available", "occupied",  "occupied",  "available",
+            "available", "available", "available", "available",
+            "occupied",  "occupied",  "available", "available",
+            "available", "available", "occupied",  "occupied",
+            "available", "available", "available", "available",
+            "occupied",  "available", "available", "occupied"
+        ], 
+        image: "21.jpg", 
+        imageAlt: "22.jpg" 
+    },
+    "Third Floor (IoT Zone)": { 
+        seats: [
+            "available", "available", "occupied",  "available", // Seats 1 & 2 is connected to sensors
+            "occupied",  "available", "available", "occupied",
+            "available", "occupied",  "available", "available",
+            "available", "available", "occupied",  "available",
+            "available", "available", "available", "available",
+            "occupied",  "available", "available", "available",
+            "available", "available", "occupied",  "available",
+            "available", "available", "available", "available"
+        ], 
+        image: "31.jpg", 
+        imageAlt: "32.jpg" 
+    }
+};
+
+// 3. NAVIGATION (Attached to window for HTML onclick access)
+window.nav = function(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById(id);
+    if (target) target.classList.add('active');
+    refreshScreen();
+};
+
+window.openMap = function(name) {
+    const title = document.getElementById('viewTitle');
+    if (title) title.innerText = name;
+    
+    const floorData = window.building[name];
+    const imgMain = document.getElementById('floorImgMain');
+    const imgAlt = document.getElementById('floorImgAlt');
+    
+    if (imgMain) imgMain.src = floorData.image;
+    if (imgAlt) imgAlt.src = floorData.imageAlt;
+    
+    window.nav('layoutPage');
+};
+
+// 4. FIREBASE LIVE LISTENER
+const seatsRef = ref(db, 'seats');
+onValue(seatsRef, (snapshot) => {
+    const data = snapshot.val();
+    
+    if (data) {
+        // We target the IoT Zone specifically for these sensors
+        const iotSeats = window.building["Third Floor (IoT Zone)"].seats;
+        
+        // This loop automatically handles seat1, seat2, seat3, etc.
+        Object.keys(data).forEach(key => {
+            // Converts "seat1" -> 1, "seat2" -> 2
+            const seatNum = parseInt(key.replace('seat', ''));
+            const index = seatNum - 1; // Array index (0 for Seat 1, 1 for Seat 2)
+
+            if (index >= 0 && index < 32) {
+                const val = data[key];
+
+                // Logic: If the value is "occupied", presence is detected
+                const isOccupied = (val === "occupied" || val === "true" || val === true);
+                
+                iotSeats[index] = isOccupied ? "occupied" : "available";
+                
+                // Debugging for your sensors
+                if (seatNum === 1) console.log("Ultrasonic (Seat 1) Presence:", iotSeats[index]);
+                if (seatNum === 2) console.log("Radar (Seat 2) Presence:", iotSeats[index]);
+            }
+        });
+
+        // Update the "System Live" badge
+        const statusBadge = document.getElementById('liveStatus');
+        if (statusBadge) {
+            statusBadge.innerText = "● System Live";
+            statusBadge.style.color = "#27ae60";
+        }
+    }
+    refreshScreen(); // Re-draw the UI with the new data
+}, (error) => {
+    console.error("Firebase Error:", error);
+    document.getElementById('liveStatus').innerText = "● Sync Error";
+});
+
+// 5. UI RENDERING LOGIC
+function refreshScreen() {
+    // Update Total Count
+    let totalAvailable = 0;
+    Object.values(window.building).forEach(f => {
+        totalAvailable += f.seats.filter(s => s === "available").length;
+    });
+    
+    const totalDisplay = document.getElementById('totalFree');
+    if (totalDisplay) totalDisplay.innerText = totalAvailable;
+
+    // Redraw active sub-pages
+    if (document.getElementById('levelPage').classList.contains('active')) drawFloors();
+    if (document.getElementById('layoutPage').classList.contains('active')) drawLayout();
+}
+
+function drawFloors() {
+    const container = document.getElementById('floorContainer');
+    if (!container) return;
+    
+    container.innerHTML = Object.keys(window.building).map(f => `
+        <div class="floor-card" onclick="openMap('${f}')">
+            <span style="font-weight:700;">${f}</span>
+            <span style="color:#00A19C; font-weight:700;">${window.building[f].seats.filter(s => s === "available").length} Free</span>
+        </div>
+    `).join('');
+}
+
+function drawLayout() {
+    const name = document.getElementById('viewTitle').innerText;
+    const container = document.getElementById('seatMapContainer');
+    if (!container) return;
+    
+    container.innerHTML = ""; 
+    const grid = document.createElement('div');
+    grid.className = "cluster-container";
+    
+    const seats = window.building[name].seats;
+    
+    // Create 8 clusters of 4 seats each
+    for(let c = 0; c < 8; c++) {
+        const tableSet = document.createElement('div');
+        tableSet.className = "table-set";
+        for(let s = 0; s < 4; s++) {
+            const seatIdx = (c * 4) + s;
+            const status = seats[seatIdx] || "available";
+            tableSet.innerHTML += `<div class="node ${status}">${seatIdx + 1}</div>`;
+        }
+        grid.appendChild(tableSet);
+    }
+    container.appendChild(grid);
+    
+    const syncElem = document.getElementById('syncTime');
+    if (syncElem) syncElem.innerText = "Last Sync: " + new Date().toLocaleTimeString();
+}
+</script>
+</body>
+</html>
